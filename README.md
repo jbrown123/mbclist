@@ -17,11 +17,11 @@
     - [template.badges.txt](#templatebadgestxt)
 
 ## Rational
-ScoutBook doesn't an interface for district and council level volunteers to access the list of MBCs (e.g. Lone Scout coordinators, council advancement committee, district committee, district advancement chairs, etc.). ScoutBook has made it abundantly clear that they have no intention of supporting district or council level usage. And BSA has been equally clear about not allowing volunteers to contribute code to their systems.
+ScoutBook doesn't have an interface for district and council level volunteers to access the list of MBCs (e.g. Lone Scout coordinators, council advancement committee, district committee, district advancement chairs, etc.). ScoutBook has made it abundantly clear that they have no intention of supporting district or council usage. And BSA has been equally clear about not allowing volunteers to contribute code to their systems.
 
-Consequently, a mechanism for managing MBCs outside the BSA supplied infrastructure is necessary. That's where `MBCList` comes in.
+Consequently, a mechanism for volunteers to manage MBCs outside the BSA supplied infrastructure is necessary. That's where `MBCList` comes in.
 
-This is not a full management system at present. This version provides a simple way for councils or districts to share their MBC information in a user friendly interface. It provides reasonable protection for the registered MBCs PII (Personally Identifiable Information). While this protection is not 100% foolproof, it should provide far more protection than a simple encrypted PDF or Excel file, for example.
+This is not a full management system at present. This version only provides a simple way for councils or districts to share their MBC information with a user friendly interface. It provides reasonable protection for the registered MBCs PII (Personally Identifiable Information) via AES 256 encryption of the entire HTML file. While this protection is not 100% foolproof, it should provide far more protection than a simple encrypted PDF or Excel file, for example.
 
 ## Usage
 In order to generate a usable version of this program several steps need to be accomplished.
