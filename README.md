@@ -30,14 +30,14 @@ In order to generate a usable version of this program several steps need to be a
     - **TODO** add process step(s)
     - insert into the html file after `var data = [`
 2. ZIP code data for the covered region can be obtained, for free, from [GeoNames](http://www.geonames.org)
-    - download the data [for the US](http://download.geonames.org/export/zip/US.zip)
+    - download the [data for the US](http://download.geonames.org/export/zip/US.zip)
     - extract the data for your state(s): `perl -ne "chomp; @f=split(/\t/); print qq!"""$f[1]""": {lat: $f[9], lon: $f[10]},\n! if ($f[4] =~ /UT|WY|ID/i);" US.txt > zip.json`
     - insert it into the html file after `var zipData = {`
     - this data is updated regularly as ZIP codes change so you should consider refreshing this monthly or whenever you get new MBC data from the council if that's less frequent
 3. Test the html file to make sure it works as expected
 4. Encrypt the html file: `staticrypt mbclist.html trustworthy -e -o encrypted.html -t "Merit Badge Counselor Information (v20210220.1415)" -i "Password is the first point of the scout law (all lower case)"`
     - substitute an appropriate password, title, and message
-5. Post the file on an appropriate hosting site
+5. Post the file `encrypted.html` on an appropriate hosting site
     - Note that [Guide to Advancement 7.0.2.2 Web-Based Counselor Lists](https://www.scouting.org/resources/guide-to-advancement/the-merit-badge-program/#7022) says [emphasis added]
     > Online counselor lists present a number of challenges. **They should only be placed on official council websites that conform to the National Council guidelines.** Council sites must consider the safety and privacy of their members and participants by obtaining the necessary permissions to release information about or images of any individual. Give attention to protecting counselor privacy. Limit access to those who have merit badge– related responsibilities, such as advancement committee members and chairs, or unit leaders and selected assistants. Scouts should not have access. Their interaction with the Scoutmaster in discussing work on a badge, and obtaining a counselor’s name, is an important part of the merit badge plan.
 
