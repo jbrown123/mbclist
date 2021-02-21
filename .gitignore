@@ -1,0 +1,9 @@
+*.xls*
+template*
+fake*
+us.*
+data.js
+*.txt
+test.html
+encrypted.html
+zip.*
