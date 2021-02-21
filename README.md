@@ -1,8 +1,8 @@
-#Merit Badge Counselor List
+# Merit Badge Counselor List
 
 `MBCList` is a secure single page web application that creates a user friendly interface to the Merit Badge Counselor (MBC) information available in ScoutNET / ScoutBook.
 
-#Table of Contents
+# Table of Contents
 - [Rational](#rational)
 - [Usage](#usage)
 - [Proximity Calculations](#proximity-calculations)
@@ -16,14 +16,14 @@
     - [template.districts.txt](#templatedistrictstxt)
     - [template.badges.txt](#templatebadgestxt)
 
-##Rational
+## Rational
 ScoutBook doesn't an interface for district and council level volunteers to access the list of MBCs (e.g. Lone Scout coordinators, council advancement committee, district committee, district advancement chairs, etc.). ScoutBook has made it abundantly clear that they have no intention of supporting district or council level usage. And BSA has been equally clear about not allowing volunteers to contribute code to their systems.
 
 Consequently, a mechanism for managing MBCs outside the BSA supplied infrastructure is necessary. That's where `MBCList` comes in.
 
 This is not a full management system at present. This version provides a simple way for councils or districts to share their MBC information in a user friendly interface. It provides reasonable protection for the registered MBCs PII (Personally Identifiable Information). While this protection is not 100% foolproof, it should provide far more protection than a simple encrypted PDF or Excel file, for example.
 
-##Usage
+## Usage
 In order to generate a usable version of this program several steps need to be accomplished.
 
 1. MBC Data from the council must be obtained and ingested
@@ -41,7 +41,7 @@ In order to generate a usable version of this program several steps need to be a
     - Note that [Guide to Advancement 7.0.2.2 Web-Based Counselor Lists](https://www.scouting.org/resources/guide-to-advancement/the-merit-badge-program/#7022) says [emphasis added]
     > Online counselor lists present a number of challenges. **They should only be placed on official council websites that conform to the National Council guidelines.** Council sites must consider the safety and privacy of their members and participants by obtaining the necessary permissions to release information about or images of any individual. Give attention to protecting counselor privacy. Limit access to those who have merit badge– related responsibilities, such as advancement committee members and chairs, or unit leaders and selected assistants. Scouts should not have access. Their interaction with the Scoutmaster in discussing work on a badge, and obtaining a counselor’s name, is an important part of the merit badge plan.
 
-##Proximity Calculations
+## Proximity Calculations
 We use ZIP code centroids (expressed as latitude and longitude) from [GeoNames](http://www.geonames.org/) to do approximate distance calculations. These are based on [ZIP Code Tabulation Areas (ZCTAs)](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html) defined by the post office and the US Census Bureau. The results are an "as the crow flies" *approximate* distance between two ZIP codes.
 
 Here's how the distance is calculated. At the equator 1 degree of longitude is about 69 miles (24,901 miles / 360 degrees = 69.169). At the poles 1 degree is 0 feet.
@@ -63,7 +63,7 @@ This formula is used with the latitude and longitude from the ZIP code database 
 
 As someone wisely said, *"ZIP codes were designed for mail delivery, not for the convenience of geo-spatial programmers, which means that they are not the best source of information. But they are ubiquitous in the US - and ubiquitous and messy beats clean and unavailable any day."*
 
-##License
+## License
 Copyright (c) 2021 by James Brown
 
 Subject to the terms and conditions listed below, the licensor hereby grants to any person obtaining a copy of this software and associated documentation (the "Software"), free of charge, a royalty-free, worldwide, non-exclusive, non-sublicensable, irrevocable license to use, copy, modify, merge, publish, distribute, reproduce and share this software, in whole or in part, for noncommercial purposes only and to produce, reproduce and share any derivative works for noncommercial purposes only subject to the following conditions:
@@ -84,7 +84,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-##Dependencies
+## Dependencies
 * [jQuery](https://jquery.com/) for basic JS access to the DOM
 * [DataTables plug-in for jQuery](https://datatables.net/) to do table management, sorting, searching, and filtering
 * [StatiCrypt](https://www.npmjs.com/package/staticrypt) encrypts the final webpage output (optional, but highly encouraged).
@@ -92,7 +92,7 @@ SOFTWARE.
 * [GeoNames](http://www.geonames.org/) is the source for the ZIP code centroid data. Download the US.zip file from [this directory](http://download.geonames.org/export/zip/)
 * [lucapette/fakedata: CLI utility for fake data generation](https://github.com/lucapette/fakedata) was used for generating fake data for testing and demo purposes. This is not necessary for production use.
 
-##FakeData Templates & data files
+## FakeData Templates & data files
 
 For testing or demonstration purposes I created some fake data to represent the merit badge counselor information that can be exported from the BSA systems.
 
@@ -102,7 +102,7 @@ CLI to generate fake list of MBCs:
 
 `echo var data =[ > data.js && fakedata -T template.tpl -l 10000 >> data.js && echo ]; >> data.js`
 
-####template.tpl:
+#### template.tpl:
 ```
 {
     name: "{{Name}}",
@@ -120,7 +120,7 @@ CLI to generate fake list of MBCs:
 ```
 This template makes use of a number of data files. The contents of these are included here.
 
-####template.streets.txt
+#### template.streets.txt
 ```
 Park Street
 Magnolia Court
@@ -524,7 +524,7 @@ Willow Avenue
 Pin Oak Drive
 ```
 
-####template.cities.txt
+#### template.cities.txt
 ```
 Aberdeen
 Afton
@@ -1200,7 +1200,7 @@ Yellowstone National Park
 Yoder
 ```
 
-####template.zips.txt
+#### template.zips.txt
 ```
 82001
 82002
@@ -2065,7 +2065,7 @@ Yoder
 84791
 ```
 
-####template.districts.txt
+#### template.districts.txt
 ```
 Old Ephraim
 Weber Rapids
@@ -2078,7 +2078,7 @@ Silver Sage
 Spanish Trails
 ```
 
-####template.badges.txt
+#### template.badges.txt
 ```
 Camping
 Citizenship in the Community
