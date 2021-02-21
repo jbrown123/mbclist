@@ -2,7 +2,7 @@
 
 `MBCList` is a secure single page web application that creates a user friendly interface to the Merit Badge Counselor (MBC) information available in ScoutNET / ScoutBook.
 
-Demo at https://jbrown123.github.io/mbclist/
+Demo at https://jbrown123.github.io/mbclist/ (using completely made up data)
 
 # Table of Contents
 - [Rational](#rational)
