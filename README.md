@@ -46,10 +46,9 @@ In order to generate a usable version of this program several steps need to be a
 ## Proximity Calculations
 We use ZIP code centroids (expressed as latitude and longitude) from [GeoNames](http://www.geonames.org/) to do approximate distance calculations. These are based on [ZIP Code Tabulation Areas (ZCTAs)](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html) defined by the post office and the US Census Bureau. The results are an "as the crow flies" *approximate* distance between two ZIP codes.
 
-Here's how the distance is calculated. At the equator 1 degree of longitude is about 69 miles (24,901 miles / 360 degrees = 69.169). At the poles 1 degree is 0 feet.
+Here's how the distance is calculated. The circumference of the earth at the equator is about 24,901 miles. Therefore, at the equator, 1 degree of longitude is about 69 miles (24,901 miles / 360 degrees = 69.169 miles per degree). At the poles 1 degree is 0 feet.
 
-The cosign function is 0 at 90 degrees and 1 at 0 degrees. Therefore, an adequate approximation of the length of 1 degree of longitude is:
- `cos(latitude) * 69`
+The cosign function is 0 at 90 degrees and 1 at 0 degrees. Therefore, an adequate approximation of the length (in miles) of 1 degree of longitude at a given latitude is: `cos(latitude) * 69`
 
 At the equator you can use the [Pythagorean theorem](https://en.wikipedia.org/wiki/Pythagorean_theorem) to calculate distance:
 
