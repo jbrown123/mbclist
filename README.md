@@ -1,15 +1,15 @@
 # Merit Badge Counselor List
 
-`MBCList` is a secure single page web application that creates a user friendly interface to the Merit Badge Counselor (MBC) information available in ScoutNET / ScoutBook.
+`MBCList` is a secure single page web application, requiring no backend infrastructure, that creates a user friendly interface to the Merit Badge Counselor (MBC) information available in ScoutNET / ScoutBook.
 
 Demo at https://jbrown123.github.io/mbclist/ (using completely made up data)
 
 # Table of Contents
 - [Rational](#rational)
+- [Dependencies](#dependencies)
 - [Usage](#usage)
 - [Proximity Calculations](#proximity-calculations)
 - [License](#license)
-- [Dependencies](#dependencies)
 - [FakeData Templates & data files](#fakedata-templates-data-files)
     - [template.tpl:](#templatetpl)
     - [template.streets.txt](#templatestreetstxt)
@@ -19,11 +19,20 @@ Demo at https://jbrown123.github.io/mbclist/ (using completely made up data)
     - [template.badges.txt](#templatebadgestxt)
 
 ## Rational
-ScoutBook doesn't have an interface for district and council level volunteers to access the list of MBCs (e.g. Lone Scout coordinators, council advancement committee, district committee, district advancement chairs, etc.). ScoutBook has made it abundantly clear that they have no intention of supporting district or council usage. And BSA has been equally clear about not allowing volunteers to contribute code to their systems.
+ScoutBook doesn't have an interface for district and council level volunteers (e.g. Lone Scout coordinators, council advancement committee, district committee, district advancement chairs, etc.) to access the list of MBCs. ScoutBook has made it abundantly clear that they have no interest in nor intention of supporting district or council users. And BSA has been equally clear about not allowing volunteers to contribute code to their systems.
 
 Consequently, a mechanism for volunteers to manage MBCs outside the BSA supplied infrastructure is necessary. That's where `MBCList` comes in.
 
 This is not a full management system at present. This version only provides a simple way for councils or districts to share their MBC information with a user friendly interface. It provides reasonable protection for the registered MBCs PII (Personally Identifiable Information) via AES 256 encryption of the entire HTML file. While this protection is not 100% foolproof, it should provide far more protection than a simple encrypted PDF or Excel file, for example.
+
+## Dependencies
+* [jQuery](https://jquery.com/) for basic JS access to the DOM.
+* [DataTables plug-in for jQuery](https://datatables.net/) to do table management, sorting, searching, and filtering.
+* [StatiCrypt](https://www.npmjs.com/package/staticrypt) encrypts the final webpage output (optional, but highly encouraged).
+* [Perl](https://perl.org) for ingesting data and other light scripting tasks. Any Perl will do (the scripts are quite simple and generic), but I recommend [Strawberry Perl for Windows](https://strawberryperl.com/).
+* [GeoNames](http://www.geonames.org/) is the source for the ZIP code centroid data. Download the `US.zip` file from [this directory](http://download.geonames.org/export/zip/).
+* [lucapette/fakedata: CLI utility for fake data generation](https://github.com/lucapette/fakedata) was used for generating fake data for testing and demo purposes. This is not necessary for production use.
+* Note that there is **NO** backend infrastructure required as all the data is included in the generated HTML file. In fact, this file doesn't even require web hosting. It can reside on a local drive and work just fine. It does need web access to download the JQuery library and plugins mentioned above although these could easily be downloaded and provided locally as well if necessary.
 
 ## Usage
 In order to generate a usable version of this program several steps need to be accomplished.
@@ -84,14 +93,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-## Dependencies
-* [jQuery](https://jquery.com/) for basic JS access to the DOM
-* [DataTables plug-in for jQuery](https://datatables.net/) to do table management, sorting, searching, and filtering
-* [StatiCrypt](https://www.npmjs.com/package/staticrypt) encrypts the final webpage output (optional, but highly encouraged).
-* [Strawberry Perl for Windows](https://strawberryperl.com/) for ingesting the raw CSV data from the council. Any Perl (the scripts are quite simple and generic) will do, I just recommend Strawberry for Windows.
-* [GeoNames](http://www.geonames.org/) is the source for the ZIP code centroid data. Download the US.zip file from [this directory](http://download.geonames.org/export/zip/)
-* [lucapette/fakedata: CLI utility for fake data generation](https://github.com/lucapette/fakedata) was used for generating fake data for testing and demo purposes. This is not necessary for production use.
 
 ## FakeData Templates & data files
 
