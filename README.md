@@ -124,6 +124,8 @@ CLI to generate fake list of MBCs:
     bsaid: "{{Int 1000000 9999999}}",
     meritbadges: [{{ range Loop 4 16 }}"{{ File "template.badges.txt" }}", {{ end }}],
     workwith: "{{ Enum "all" "districts:Timpanogos" "units:2021"}}"
+    availability: "{{ Enum "Available" "Available" "Available" "Available" "Busy"}}",
+    yptexpiry: "{{ Enum "1/1/2050" "1/1/2050" "1/1/2050" "1/1/2050" "12/31/2019"}}"
 },
 ```
 This template makes use of a number of data files. The contents of these are included here.
