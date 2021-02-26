@@ -38,15 +38,21 @@ This is not a full management system at present. This version only provides a si
 In order to generate a usable version of this program several steps need to be accomplished.
 
 1. MBC Data from the council must be obtained and ingested
-    - **TODO** add process step(s)
-    - insert into the html file after `var data = [`
+    - unfortunately the national council and ScoutBook are going out of their way to make management of MBCs painful so we have to merge two datasets to get all the data we need
+    - council generates a CSV from ScoutNET of MBCs (code 42) with the following fields: `Person ID, First Name, Middle Name, Last Name, Address 1, City, State, Zip Code, County, Other Reg  District No, Other Reg  District Name, Other Reg  Position, Phone Type, Phone No, Registrant Home E-Mail`
+    - load this file into excel and save it out as a `Text (tab delimited)` file named `council.txt`
+    - export from ScoutBook the "current mbcdetails.csv" file with the following fields: `UserID,BSAMemberID,First Name,Last Name,Email,YPTExpiryDate,Units,Districts,ListingPreference,Availability,Merit Badges`
+    - load this file into excel and save it out as a `Text (tab delimited)` file named `scoutbook.txt`
+    - run `perl ingest.pl council.txt scoutbook.txt >data.json`
+    - if necessary, address any issues the program finds with the data
+    - insert the contents of `data.json` into the html file after `var data = [`
 2. ZIP code data for the covered region can be obtained, for free, from [GeoNames](http://www.geonames.org)
     - download the [data for the US](http://download.geonames.org/export/zip/US.zip)
-    - extract the data for your state(s): `perl -ne "chomp; @f=split(/\t/); print qq!"""$f[1]""": {lat: $f[9], lon: $f[10]},\n! if ($f[4] =~ /UT|WY|ID/i);" US.txt > zip.json`
-    - insert it into the html file after `var zipData = {`
+    - extract the data for your state(s): `perl -ne "chomp; @f=split(/\t/); print qq!"""$f[1]""": {lat: $f[9], lon: $f[10]},\n! if ($f[4] =~ /UT|WY|ID/i);" US.txt > zip.json` by replacing `UT|WY|ID` (for Utah, Wyoming, Idaho) in the command with your state(s) abbreviations (separate abbreviations with a `|`)
+    - insert `zip.json` into the html file after `var zipData = {`
     - this data is updated regularly as ZIP codes change so you should consider refreshing this monthly or whenever you get new MBC data from the council if that's less frequent
 3. Test the html file to make sure it works as expected
-4. Encrypt the html file: `staticrypt mbclist.html trustworthy -e -o encrypted.html -t "Merit Badge Counselor Information (v20210220.1415)" -i "Password is the first point of the scout law (all lower case)"`
+4. Encrypt the html file: `staticrypt mbclist.html trustworthy -e -o encrypted.html -t "Merit Badge Counselor Information" -i "Password is the first point of the scout law (all lower case)"`
     - substitute an appropriate password, title, and message
 5. Post the file `encrypted.html` on an appropriate hosting site
     - Note that [Guide to Advancement 7.0.2.2 Web-Based Counselor Lists](https://www.scouting.org/resources/guide-to-advancement/the-merit-badge-program/#7022) says [emphasis added]
