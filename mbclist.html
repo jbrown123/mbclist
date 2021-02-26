@@ -63,6 +63,15 @@
         .narrow {
             max-width: 5em;
         }
+        .row-busy {
+            opacity: 40%;
+        }
+        .row-expiring {
+            background-color: DarkOrange !important;
+        }
+        .row-expired {
+            background-color: Red !important;
+        }
     </style>
 
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.css">
@@ -127,28 +136,36 @@
 
         function ChildData ( d ) {
             // `d` is the original data object for the row
-            return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
-                '<tr>'+
-                    '<td>Address:</td>'+
-                    '<td>'+d.address+', '+d.city+', '+d.state+' '+d.zip+'</td>'+
-                '</tr>'+
-                '<tr>'+
-                    '<td>Phone:</td>'+
-                    '<td>'+d.phone.map(item => item.type + " " + item.number).join("<br>")+'</td>'+
-                '</tr>'+
-                '<tr>'+
-                    '<td>Email:</td>'+
-                    '<td>'+d.email+'</td>'+
-                '</tr>'+
-                '<tr>'+
-                    '<td>BSA ID:</td>'+
-                    '<td>'+d.bsaid+'</td>'+
-                '</tr>'+
-                '<tr>'+
-                    '<td>Works with:</td>'+
-                    '<td>'+d.workwith+'</td>'+
-                '</tr>'+
-            '</table>';
+            return `<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">
+                <tr>
+                    <td>Address:</td>
+                    <td>${d.address}, ${d.city}, ${d.state} ${d.zip}</td>
+                </tr>
+                <tr>
+                    <td>Phone:</td>
+                    <td>${d.phone.map(item => item.type + " " + item.number).join("<br>")}</td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td>${d.email}</td>
+                </tr>
+                <tr>
+                    <td>BSA ID:</td>
+                    <td>${d.bsaid}</td>
+                </tr>
+                <tr>
+                    <td>Works with:</td>
+                    <td>${d.workwith}</td>
+                </tr>
+                <tr>
+                    <td>Availability:</td>
+                    <td>${d.availability}</td>
+                </tr>
+                <tr>
+                    <td>YPT expires:</td>
+                    <td>${d.yptexpiry}</td>
+                </tr>
+            </table>`;
         }
 
         $(document).ready( function () {
@@ -162,14 +179,26 @@
             $('#mbcs thead tr:eq(1) th:gt(1)').each( function (i) {
                 var title = $(this).text();
 
-                $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+                $(this).html( `<input type="text" placeholder="Search ${title}" ${title == "State" ? 'size=5' : ''} />` );
 
                 $( 'input', this ).on( 'keyup change', function () {
-                    if ( table.column(i+2).search() !== this.value ) {
-                        table
-                            .column(i+2)
-                            .search( this.value )
-                            .draw();
+                    if ( table.column(i+2).search() !== this.value )
+                    {
+                        // if it looks like a regex, do a regex search
+                        if ($.fn.dataTable.util.escapeRegex(this.value) != this.value)
+                        {
+                            table
+                                .column(i+2)
+                                .search( this.value, true, false )
+                                .draw();
+                        }
+                        else
+                        {
+                            table
+                                .column(i+2)
+                                .search( this.value )
+                                .draw();
+                        }
                     }
                 } );
             } );
@@ -230,14 +259,28 @@
                             return retval;
                         }
                     },
-                    { data: 'workwith', visible: false }
+                    { data: 'workwith', visible: false },
+                    { data: 'availability', visible: false },
+                    { data: 'yptexpiry', visible: false },
                 ],
                 order: [[2, 'asc']],
                 dom: '<"top"lif<"clear">>rt<"bottom"lip<"clear">>',
                 orderCellsTop: true,
                 fixedHeader: true,
                 pageLength: 10,
-            } );
+                createdRow: function( row, data, dataIndex ) {
+                     if ( data.availability == "Busy" )
+                     {
+                         $(row).addClass('row-busy');
+                     }
+                     var diffDays = (Date.parse(data.yptexpiry) - Date.now()) / (1000 * 60 * 60 * 24);
+                     if ( diffDays <= 45 )
+                     {
+                         console.log(data.yptexpiry, diffDays, row);
+                         $(row).addClass(diffDays <= 0 ? 'row-expired' : 'row-expiring');
+                     }
+                }   // createdRow
+            } );    // DataTable
 
             // Event listener to the two distance filtering inputs to redraw on input
             $('#targetZipcode, #radius').keyup( function(e) {
