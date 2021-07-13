@@ -64,7 +64,7 @@ while (<BADGES>)
 
     if ($f[$badgeFields{'Merit Badges'}] =~ /^\s*$/)
     {
-        warn "Empty badges list for $_\n\tprev: $badges{$f[$badgeFields{'BSAMemberID'}]}\n\n";
+        warn "Empty badges list for $_\n\n";
         $errors{"Empty badges list"}++;
     }
 
