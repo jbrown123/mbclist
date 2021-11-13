@@ -5,10 +5,14 @@ use Getopt::Std;
 
 getopts('e:y:D'); # warn about excessive MB, want about YPT expiry; Debug output
 
-Usage() unless ($#ARGV == 2);
+Usage() unless ($#ARGV == 1);
 
 $people = $ARGV[0];
 $badges = $ARGV[1];
+
+=comment block
+# this code was commented out when they returned the address field to the scoutnet data
+Don't forget to set $#ARGV==2 above!
 $training = $ARGV[2];
 
 warn "Loading training info from $training\n\n";
@@ -55,7 +59,7 @@ while (<TRAINING>)
     $training{$f[$trainingFields{'MemberID'}]} = $_;
 }
 close(TRAINING);
-
+=cut
 
 warn "Loading badges from $badges\n\n";
 
@@ -64,6 +68,7 @@ warn "Loading badges from $badges\n\n";
 	'BSAMemberID',
     'First Name',
     'Last Name',
+	'Email',
     'YPTExpiryDate',
     'Units',
     'Districts',
@@ -146,9 +151,11 @@ close(BADGES);
 
 
 @peopleRequired = (
-	'Organizations',
-	'Member_ID',
-	'Phone',
+	'organizations',
+	'memberid',
+	'phone',
+	'email',
+	'straddress',
 );
 
 warn '=' x 20 . "\nLoading people from $people\n";
@@ -173,21 +180,21 @@ while (<PEOPLE>)
         next;
     }
 
-    if ($f[$peopleFields{'Member_ID'}] !~ /\d+/)
+    if ($f[$peopleFields{'memberid'}] !~ /\d+/)
     {
         warn "Invalid person entry $_\n\n";
         $errors{"Invalid person entry"}++;
         next;
     }
 
-    if (exists($people{$f[$peopleFields{'Member_ID'}]}))
+    if (exists($people{$f[$peopleFields{'memberid'}]}))
     {
-        warn "Duplicate person entry for $_\n\tprev: $people{$f[$peopleFields{'Member_ID'}]}\n\n";
+        warn "Duplicate person entry for $_\n\tprev: $people{$f[$peopleFields{'memberid'}]}\n\n";
         $errors{"Duplicate person entry"}++;
         next;
     }
 
-    $people{$f[$peopleFields{'Member_ID'}]} = $_;
+    $people{$f[$peopleFields{'memberid'}]} = $_;
 }
 close(PEOPLE);
 
@@ -206,14 +213,14 @@ for (values %people)
 {
     @p = split(/\t/);
 
-    if (!exists $badges{$p[$peopleFields{'Member_ID'}]})
+    if (!exists $badges{$p[$peopleFields{'memberid'}]})
     {
         warn "Missing badges entry for $_\n\n";
         $errors{"Missing badges entry"}++;
         next;
     }
 
-    @b = split(/\t/, $badges{$p[$peopleFields{'Member_ID'}]});
+    @b = split(/\t/, $badges{$p[$peopleFields{'memberid'}]});
 
     $b[$badgeFields{'Merit Badges'}] =~ s/"//g;    # remove surrounding quotes
 
@@ -228,14 +235,37 @@ for (values %people)
         (($b[$badgeFields{'ListingPreference'}] eq 'Unit') ? " $b[$badgeFields{'Units'}]" :
         ($b[$badgeFields{'ListingPreference'}] eq 'District') ? " $b[$badgeFields{'Districts'}]" : '');
 
-	$district = $p[$peopleFields{'Organizations'}];
+	$district = $p[$peopleFields{'organizations'}];
 	$district =~ s/"//g;	# remove any surrounding quotes (in the case of multiple districts)
 
+	$address = $p[$peopleFields{'straddress'}];
+	$address =~ s/^"?\s+//; $address =~ s/\s+"?$//; # remove leading and trailing blanks
+
+	$zip = $city = $state = '';
+	# match something like "255 W 2000 S, Orem, UT 84058"
+	if ($address =~ /^(.+),\s+(.+),\s+([A-Z]{2})\s+(\d+(?:-\d+)?)$/)
+	{
+		$address = $1;
+		$city = $2;
+		$state = $3;
+		$zip = $4;
+	}
+	else
+	{
+		warn "Couldn't parse address '$address' for $_\n\n";
+        $errors{"Couldn't parse address"}++;
+	}
+
+	# give as much email info as we can
+	$email = $b[$badgeFields{'Email'}] || $p[$peopleFields{'email'}];
+	$email .= ", $p[$peopleFields{'email'}]" if (lc($email) ne lc($p[$peopleFields{'email'}]));
+
+=comment block
 	# try to find zip code
 	$zip = $city = $state = '';
-	if (exists $training{$p[$peopleFields{'Member_ID'}]})
+	if (exists $training{$p[$peopleFields{'memberid'}]})
 	{
-		@t = split(/\t/, $training{$p[$peopleFields{'Member_ID'}]});
+		@t = split(/\t/, $training{$p[$peopleFields{'memberid'}]});
 		$zip = $t[$trainingFields{'Zip_Code'}];
 
 		if (exists $zips{$zip})
@@ -255,18 +285,19 @@ for (values %people)
 		warn "Missing zip entry for $_\n\n";
         $errors{"Missing zip entry"}++;
 	}
+=cut
 
     print <<EOS;
     {
         name: "$b[$badgeFields{'First Name'}] $b[$badgeFields{'Last Name'}]",
-        address: "",
+        address: "$address",
         city: "$city",
         state: "$state",
         zip: "$zip",
-        phone: [{type: "A", number: "$p[$peopleFields{'Phone'}]"}],
-        email: "$b[$badgeFields{'Email'}]",
+        phone: [{type: "A", number: "$p[$peopleFields{'phone'}]"}],
+        email: "$email",
         district: "$district",
-        bsaid: "$p[$peopleFields{'Member_ID'}]",
+        bsaid: "$p[$peopleFields{'memberid'}]",
         meritbadges: [$mbs],
         workwith: "$workwith",
         availability: "$b[$badgeFields{'Availability'}]",
@@ -371,10 +402,9 @@ sub DateToDays
 sub Usage
 {
     die <<EOS;
-Usage: $0 [-eD] person.tsv mblist.tsv training.tsv
+Usage: $0 [-eD] person.tsv mblist.tsv
     person.tsv = tab seperated list of people from ScoutNET
     mblist.tsv = tab separated list of MBCs from ScoutBook
-	training.tsv = tab separated training report (zip code data)
 
     options:
     -e <n> : warn about excessive merit badges, more than <n>

@@ -12,8 +12,8 @@ $date = $ARGV[0];
 # these file are required
 @fileRequired = (
     "CouncilMeritBadgeCounselorListing_$date.csv",
-	"YPT_$date.csv",
-	"TrainedLeader_$date.csv",
+#	"YPT_$date.csv",
+#	"TrainedLeader_$date.csv",
 	"PinDataReport_$date.csv",
 	"590_Detailmbc_download_$date.csv"
 );
@@ -27,17 +27,18 @@ for (@fileRequired)
 # now execute the commands
 @commands = (
 	"sed 1,10d CouncilMeritBadgeCounselorListing_$date.csv | CSVFileView /load stdin: /stab scoutnet.tsv",
-	"sed 1d YPT_$date.csv | CSVFileView /load stdin: /stab YPT.tsv",
-	"sed 1,8d TrainedLeader_$date.csv | CSVFileView /load stdin: /stab TrainedLeader.tsv",
+#	"sed 1d YPT_$date.csv | CSVFileView /load stdin: /stab YPT.tsv",
+#	"sed 1,8d TrainedLeader_$date.csv | CSVFileView /load stdin: /stab TrainedLeader.tsv",
 	"CSVFileView /load PinDataReport_$date.csv /stab PinDataReport.tsv",
 	"CSVFileView /load 590_Detailmbc_download_$date.csv /stab scoutbook.tsv",
-	
-	"perl ingest.pl scoutnet.tsv scoutbook.tsv TrainedLeader.tsv > live-mbc.json",
-	
+
+#    "perl ingest.pl scoutnet.tsv scoutbook.tsv TrainedLeader.tsv > live-mbc.json",
+    "perl ingest.pl scoutnet.tsv scoutbook.tsv > live-mbc.json",
+
 	"perl pin2units.pl PinDataReport.tsv >units.json",
 	"perl makemap.pl",
 	"perl makelive.pl",
-	
+
 	"copy live-index.html site",
 	"copy maplive.html site",
 );
