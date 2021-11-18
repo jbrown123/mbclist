@@ -402,7 +402,7 @@ sub DateToDays
 sub Usage
 {
     die <<EOS;
-Usage: $0 [-eD] person.tsv mblist.tsv
+Usage: $0 [-eyD] person.tsv mblist.tsv
     person.tsv = tab seperated list of people from ScoutNET
     mblist.tsv = tab separated list of MBCs from ScoutBook
 
