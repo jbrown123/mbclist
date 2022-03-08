@@ -33,12 +33,13 @@ for (@fileRequired)
 	"CSVFileView /load 590_Detailmbc_download_$date.csv /stab scoutbook.tsv",
 
 #    "perl ingest.pl scoutnet.tsv scoutbook.tsv TrainedLeader.tsv > live-mbc.json",
-    "perl ingest.pl scoutnet.tsv scoutbook.tsv > live-mbc.json",
+    "perl ingest.pl -e 30 scoutnet.tsv scoutbook.tsv > live-mbc.json",
 
 	"perl pin2units.pl PinDataReport.tsv >units.json",
 	"perl makemap.pl",
 	"perl makelive.pl",
 
+    "sqlite3 < badges-by-district.sql > site\mbbydistrict.md",
 	"copy live-index.html site",
 	"copy maplive.html site",
 );
