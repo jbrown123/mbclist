@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>Merit Badge Counselor Coverage</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+	<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+
+	<style>
+		.leaflet-mboverlay-pane {opacity: 0.2}
+	</style>
+</head>
+<body>
+
+<div id="mapid" style="width: 98vw; height: 98vh;"></div>
+<script>
+
+    var mapGeoJSON = // {{include: map.json}}
+
+    var roads = // {{include: roads.json}}
+
+	var units = [
+		// {{include: units.json}}
+	];
+
+	var data =[
+		// {{include: live-mbc.json filter:(^\s*\{\s*$|^\s*\},\s*$|zip:|meritbadges:|workwith:|availability:|yptexpiry:)}}
+	];
+
+	var zipData = {
+		// {{include: demo-zip.json}}
+	};
+
+	var requiredMBs = [
+		"Camping",
+		"Citizenship in the Community",
+		"Citizenship in the Nation",
+		"Citizenship in the World",
+		"Communication",
+		"Cooking",
+		"Cycling",
+		"Emergency Preparedness",
+		"Environmental Science",
+		"Family Life",
+		"First Aid",
+		"Hiking",
+		"Lifesaving",
+		"Personal Fitness",
+		"Personal Management",
+		"Sustainability",
+		"Swimming"
+	];
+
+	var layerColor = {
+		"Camping": 'Green',
+		"Cooking": 'YellowGreen',
+		"Cycling": 'Lime',
+		"Hiking": 'DarkGreen',
+
+		"Citizenship in the Community": 'Blue',
+		"Citizenship in the Nation": 'RoyalBlue',
+		"Citizenship in the World": 'SkyBlue',
+		"Communication": 'Cyan',
+
+		"Environmental Science": 'SaddleBrown',
+		"Sustainability": 'Tan',
+
+		"Emergency Preparedness": 'Salmon',
+		"First Aid": 'Red',
+		"Lifesaving": 'IndianRed',
+		"Swimming": 'DarkRed',
+
+		"Family Life": 'BlueViolet',
+		"Personal Fitness": 'Violet',
+		"Personal Management": 'MediumOrchid',
+	}
+
+	// the following is lifted from the DataTables source (MIT license)
+	// Escape regular expression special characters
+	var _re_escape_regex = new RegExp( '(\\' + [ '/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\', '$', '^', '-' ].join('|\\') + ')', 'g' );
+	/**
+	 * Escape a string such that it can be used in a regular expression
+	 *
+	 *  @param {string} val string to escape
+	 *  @returns {string} escaped string
+	 */
+	function escapeRegex( val ) {
+		return val.replace( _re_escape_regex, '\\$1' );
+	}
+
+	/**
+	 * Build a regular expression object suitable for searching a table
+	 *  @param {string} sSearch string to search for
+	 *  @param {bool} bRegex treat as a regular expression or not
+	 *  @param {bool} bSmart perform smart filtering or not
+	 *  @param {bool} bCaseInsensitive Do case insensitive matching or not
+	 *  @returns {RegExp} constructed object
+	 *  @memberof DataTable#oApi
+	 */
+	function CreateSearchRegExp( search, regex, smart, caseInsensitive )
+	{
+		search = regex ?
+			search :
+			escapeRegex( search );
+
+		if ( smart ) {
+			/* For smart filtering we want to allow the search to work regardless of
+			 * word order. We also want double quoted text to be preserved, so word
+			 * order is important - a la google. So this is what we want to
+			 * generate:
+			 *
+			 * ^(?=.*?\bone\b)(?=.*?\btwo three\b)(?=.*?\bfour\b).*$
+			 */
+			var a = $.map( search.match( /"[^"]+"|[^ ]+/g ) || [''], function ( word ) {
+				if ( word.charAt(0) === '"' ) {
+					var m = word.match( /^"(.*)"$/ );
+					word = m ? m[1] : word;
+				}
+
+				return word.replace('"', '');
+			} );
+
+			search = '^(?=.*?'+a.join( ')(?=.*?' )+').*$';
+		}
+
+		return new RegExp( search, caseInsensitive ? 'i' : '' );
+	}
+
+
+	var baseMap = L.geoJSON(mapGeoJSON, {color: 'grey', fillOpacity: 0});
+    var roadMap = L.geoJSON(roads, {color: 'black', opacity: 1, fillOpacity: 1});
+
+    var mymap = L.map('mapid',
+	{
+		//center: [39.8, -111.24],
+		//zoom: 7,
+		layers: [baseMap]
+	}).fitBounds([[43.463,-114.038],[37.003,-107.501]]);
+
+	var overlays = {
+		"Roads": roadMap
+	};
+
+
+	// add all the units to the map as points
+	mymap.createPane('unitoverlay', mymap.getPane('overlay-pane'));
+
+	// step through all the units
+	var circles = [];
+	units.forEach(function (unit) {
+		// create a tiny circle for each unit
+		var circle = L.circle([unit.lat, unit.lon], {
+	        color: 'white',
+	        fillColor: 'red',
+	        fillOpacity: 1,
+			opacity: 0,
+	        radius: 1000,
+			pane: 'unitoverlay',
+	    });
+	    // circle.bindPopup("I am a circle.");
+	    circles.push(circle);
+	});
+	// add a layer group for the units
+	var unitOverlay = L.layerGroup(circles);
+	overlays[`<span style='color: red'>Units</span>`] = unitOverlay;
+
+	// turn on the units layer by default
+	mymap.addLayer(unitOverlay);
+
+
+
+
+	var radius = 1609 * 15;	// 15 miles
+	var opacity = 0.1;
+
+	mymap.createPane('mboverlay', mymap.getPane('overlay-pane'));
+
+	// step through all the required MBs
+	requiredMBs.forEach(function (mb) {
+		// make a list (set) of all zip codes
+		var ziplist = new Set();
+		data.forEach(function (person) {
+			if (person.meritbadges.includes(mb) &&
+				person.availability == 'Available' &&
+				(Date.parse(person.yptexpiry) - Date.now()) > 0
+			)
+				ziplist.add(person.zip.substr(0,5));
+		});
+
+		// create a circle for each zip code
+		var circles = [];
+		ziplist.forEach(function (zip) {
+			// valid zip
+			if (zipData.hasOwnProperty(zip))
+			{
+				var circle = L.circle([zipData[zip].lat, zipData[zip].lon], {
+			        color: 'white',
+			        fillColor: layerColor[mb],
+			        fillOpacity: 1,
+					opacity: 0,
+			        radius: radius,
+					pane: 'mboverlay',
+			    });
+			    // circle.bindPopup("I am a circle.");
+			    circles.push(circle);
+			}
+
+		});	// ziplist.forEach
+
+		// add a layer group for this MB to the overlays
+		 overlays[`<span style='color: ${layerColor[mb]}'>${mb}</span>`] = L.layerGroup(circles);
+	});	// requiredMBs.forEach
+
+	var otherLayerColors = {mbother0: 'Black', mbother1: 'DeepPink', mbother2: 'DarkMagenta'};
+	var othersLayerGroup = [];
+
+	for (var i = 0; i < 3; i++)
+	{
+		var lg = L.layerGroup();
+		othersLayerGroup['mbother'+i] = lg;
+		overlays[`<span style="color: ${otherLayerColors['mbother'+i]}">Other <input class="mbother" type="text" id="mbother${i}" placeholder="smart search"/></span>`] = lg;
+	}
+
+	L.control.layers(null, overlays).addTo(mymap);
+
+	$('input.mbother').on('change keyup paste', function(event) {
+		var mb = $(this).val();
+		var target = event.target.id;
+
+		// rebuild layer
+		othersLayerGroup[target].clearLayers();
+
+		if (mb.length < 3 || mb.search(/\S/) == null)
+			return;
+
+		// make a list (set) of all zip codes
+		var ziplist = new Set();
+		var mbregex = CreateSearchRegExp( mb, false, true, true );
+		data.forEach(function (person) {
+			if (person.availability == 'Available' &&
+				(Date.parse(person.yptexpiry) - Date.now()) > 0
+			)
+				person.meritbadges.forEach( function (pmb) {
+					if (mbregex.test(pmb))
+						ziplist.add(person.zip.substr(0,5));
+				});
+		});
+
+		// create a circle for each zip code
+		ziplist.forEach(function (zip) {
+			// valid zip
+			if (zipData.hasOwnProperty(zip))
+			{
+				var circle = L.circle([zipData[zip].lat, zipData[zip].lon], {
+			        color: 'white',
+			        fillColor: otherLayerColors[target],
+			        fillOpacity: 1,
+					opacity: 0,
+			        radius: radius,
+					pane: 'mboverlay',
+			    });
+			    othersLayerGroup[target].addLayer(circle);
+			}
+
+		});	// ziplist.forEach
+
+	});
+
+    var popup = L.popup();
+
+	// https://www.google.com/maps/@40.2548192,-111.7137328,14z
+    function onMapClick(e) {
+        popup
+            .setLatLng(e.latlng)
+            .setContent(`Location <a href="https://www.google.com/maps/@${e.latlng.lat.toFixed(5)},${e.latlng.lng.toFixed(5)},${mymap.getZoom()}z" target="_blank">${e.latlng.lat.toFixed(3)} ${e.latlng.lng.toFixed(3)}</a>`)
+            .openOn(mymap);
+    }
+
+    mymap.on('click', onMapClick);
+
+</script>
+
+</body>
+</html>
